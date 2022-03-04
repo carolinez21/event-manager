@@ -1,6 +1,8 @@
 require 'csv'
 require 'google/apis/civicinfo_v2'
 require 'erb'
+require 'time'
+require 'date'
 
 def clean_zipcode(zipcode)
   zipcode.to_s.rjust(5, '0')[0..4]
@@ -42,6 +44,17 @@ def save_thank_you_letter(id, form_letter)
   end
 end
 
+def store_hours_days(date, hours, days)
+  hours << Time.strptime(date, "%m/%d/%y %k:%M").hour
+  days << Date::DAYNAMES[Date.strptime(date, "%m/%d/%y").wday]
+end
+
+def find_most_frequent(hours, days)
+  puts("The peak registration hours are: #{hours.group_by { |hour| hours.count(hour) }.max.last.uniq.join(", ")}")
+
+  puts("The peak registration days are: #{days.group_by { |day| days.count(day) }.max.last.uniq.join(", ")}")
+end
+
 puts 'Event Manager Initialized!'
 
 contents = CSV.open(
@@ -53,19 +66,26 @@ contents = CSV.open(
 template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
 
+hours = []
+days = []
+
 contents.each do |row|
   id = row[0]
   name = row[:first_name]
 
-  zipcode = clean_zipcode(row[:zipcode])
+  # zipcode = clean_zipcode(row[:zipcode])
 
-  phone_number = clean_phone_number(row[:homephone])
+  # phone_number = clean_phone_number(row[:homephone])
 
-  legislators = legislators_by_zipcode(zipcode)
+  # legislators = legislators_by_zipcode(zipcode)
 
-  form_letter = erb_template.result(binding)
+  # form_letter = erb_template.result(binding)
 
-  save_thank_you_letter(id, form_letter)
+  # save_thank_you_letter(id, form_letter)
 
-  puts "#{name} #{phone_number}"
+  # puts "#{name} #{phone_number}"
+
+  store_hours_days(row[:regdate], hours, days)
 end
+
+find_most_frequent(hours, days)

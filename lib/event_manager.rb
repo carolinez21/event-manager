@@ -9,13 +9,13 @@ def clean_zipcode(zipcode)
 end
 
 def clean_phone_number(phone_number)
-  phone_number.gsub!(/\D/,"")
+  phone_number.gsub!(/\D/, '')
   if phone_number.length == 11 && phone_number[0] == '1'
     phone_number[1..10]
   elsif phone_number.length == 10
     phone_number
   else
-    '0000000000'
+    'Invalid Number'
   end
 end
 
@@ -45,14 +45,12 @@ def save_thank_you_letter(id, form_letter)
 end
 
 def store_hours_days(date, hours, days)
-  hours << Time.strptime(date, "%m/%d/%y %k:%M").hour
-  days << Date::DAYNAMES[Date.strptime(date, "%m/%d/%y").wday]
+  hours << Time.strptime(date, '%m/%d/%y %k:%M').hour
+  days << Date::DAYNAMES[Date.strptime(date, '%m/%d/%y').wday]
 end
 
-def find_most_frequent(hours, days)
-  puts("The peak registration hours are: #{hours.group_by { |hour| hours.count(hour) }.max.last.uniq.join(", ")}")
-
-  puts("The peak registration days are: #{days.group_by { |day| days.count(day) }.max.last.uniq.join(", ")}")
+def find_most_frequent(array)
+  array.group_by { |a| array.count(a) }.max.last.uniq.join(', ')
 end
 
 puts 'Event Manager Initialized!'
@@ -88,4 +86,6 @@ contents.each do |row|
   store_hours_days(row[:regdate], hours, days)
 end
 
-find_most_frequent(hours, days)
+puts("The peak registration hours are: #{find_most_frequent(hours)}")
+
+puts("The peak registration days are: #{find_most_frequent(days)}")
